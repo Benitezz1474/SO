@@ -4,7 +4,6 @@
 function crearUsuario(){
 
 read -p "ingrese un nombre de usuario" name;
-read -p "ingresa una contraseña para el usuario" clave;
 
  if [[ -n "$name" ]] then 
          
