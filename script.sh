@@ -5,7 +5,6 @@
 #      de esa forma nos ahorramos tener que poner sudo en cada comando
 #por si alguno no le da privilegios al script, uso la palbra reservada sudo en los comandos :)
 
-
 sudo touch /var/log/conceptualScript_logs.log; #no hace falta ya que echo>>archivo crea el archivo sino existe, pero: leer linea 4 y 5 :)
 
 #-------------------------------------crear usuaio------------------------
@@ -19,8 +18,6 @@ read -p "ingrese un nombre de usuario " name;
  if [[ -n "$name" ]] then 
 
            sudo useradd $name; #creo el usuario
-           sudo passwd $name; #le asigno una clave
-
 
            echo "usuario creado correctamente";
 
