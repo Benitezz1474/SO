@@ -16,6 +16,8 @@ function crearUsuario(){
 read -p "ingrese un nombre de usuario " name;
 
  if [[ -n "$name" ]] then 
+   
+    if ! grep -q "^$name:" /etc/passwd; then #si el usuario NO existe, entoces....
 
            sudo useradd $name; #creo el usuario
 
@@ -23,7 +25,10 @@ read -p "ingrese un nombre de usuario " name;
 
            #debo guardar en los logs la creacion del usuario con fecha y hora
           sudo echo "[$(date)] -> usuario creado: $name" >> "$LOGS";
+      else 
+           echo "El usuario ya existe";
 
+    fi
 else
     echo "debes ingresar datos validos ";
 
@@ -31,7 +36,7 @@ fi
 }
 
 #----------------------------------eliminar usuario------------------
-function eliminarUsuario(){
+function eliminarUsuario(){ #el usuario se elimina de manera bruta; no prgunta.
 
 read -p "ingrese nombre de usuario " name;
 if [[ -n "$name" ]] then
@@ -50,16 +55,18 @@ fi
 function cambiarClave(){
 
   read -p "ingrese nombre de usuario " name;
-   
+
      if [[ -n "$name" ]] then
-      
+      if grep -q "^$name:" /etc/passwd;then #el usuario existe?
        sudo passwd $name;
        echo "contraseña cambiada correctamente";
          #guardar log
         sudo echo "[$(date)] -> clave modificada: $name " >> "$LOGS";
-
-      else
-         echo "debes ingresar datos validos";
+          else
+             echo "el usuario no existe";
+         fi
+     else
+      echo "debes ingresar datos validos";
 fi
 }
 #------------------------------cambiar nombre usuario-------------
@@ -71,13 +78,15 @@ function cambiarNombre(){
  
    if [[ -n "$name" && -n "$newName" ]] then
           
+      if grep -q "^$name:" /etc/passwd; then #pregunto si el usuario existe
            sudo usermod -l $name $newName;
-          
           #guardar log
           sudo echo "[$(date)] -> nombre usuario cambiado: $name" >> "$LOGS";
 
            echo "nombre cambiado correctamente";
-
+            else
+              echo "usuario no encontrado";
+  fi
 fi
 
 }
