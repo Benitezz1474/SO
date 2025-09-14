@@ -1,0 +1,51 @@
+En este documento se ecuentra toda la infomracion acrca del servicio de bases de datos
+que está instalado en este SO (almalinux):
+
+
+INDICE:
+1) como instalar mysql
+2) configuracion
+3) licenciamiento y soporte
+
+1) COMO INSTALAR MYSQL:
+
+Para instalar MYSQL se deben realizar los siguientes pasos:
+
+-> #SUDO DNF INSTALL MARIADB-SERVER -Y# 
+
+-> se debe tener en cuenta que esto instala los servicios que estan "por defecto"
+   en los repositorios de almalinux
+
+2) CONFIGURACIÓN:
+
+   -> para ver la configuración del servicio de base de datos de mariaDB, debe ir
+      al archivo ubicado en /etc/my.cnf, este contiene los parametros basicos que vienen
+      por defecto al utilizar los servicios de maraiaDB, se pueden reajustar/cambiar.
+
+   -> systemctl status mariadb => permite visualizar el estado del cliente de mariaDB
+
+   -> systemctl start mariadb => inicia el servicio de base de datos de mariadb
+
+   -> systemctl restart mariadb => reinicia el servicio de bases de datos de mariadb
+
+   -> systemctl enable mariadb => eso evita que se apague el servicio de base de datos al reiniciar 
+
+  CONFIGURACION DE RESPALDOS Y RECUPERACIÓN:
+   
+    -> para realizar respaldos y recuperaciones de una BBDD, utilzando el servicio de base de datos mariaDB se debe
+       utilizar el comando mysqldump, a continuación ejemplos basicos de uso:
+      
+    -> para respaldar: mysqldump -u "nombreUusario" -p"clave"  "nombreBBDD" > archivo.sql
+   
+    -> para recuperar: mysqldump -u "nombreUsuario" -p"clave" "nombreBBDD" < arhivo
+
+
+3) LICENCIAMIENTO Y SOPORTE
+
+ -> MySQL es desarrollado por Oracle, utilza una licencia GPL V2 (licencia gratuita) y tambien (opcional)
+    utiliza una licencia comerciales pero solo cuando se requiere soporte oficial de Oracle (Ediciones enterprise), llegando 
+    a valer desde los 200USD hasta los 10000USD aproximadamente. Para mas información: http://redresscompiance.com/mysql
+   
+->  En nuestro caso, almalinux, utiliza la edicion MySQL Community Edition de tipo GPL V2,totalmente gratuita, es las mas 
+    utilizada en entonos de desarrollo y entornos educativos sin costo alguno, totalemnte gratis. El Sopote que se utiliza en nuestro caso tambien
+    es gratuito y se puede encontrar en foros de la comunidad de MySQL y en la documentación oficial: http://dev.mysql.com/doc. 

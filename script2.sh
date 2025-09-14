@@ -43,8 +43,9 @@ do
 
 echo "1) ingresar al servidor via SSH";
 echo "2) realizar respaldo manual";
-echo "3) acerca de http";
-echo "4) acerca de BBDD"
+echo "3) realizar restauracion manual";
+echo "4) acerca de BBDD";
+echo "5) acerca del servidor web";
 echo "0) salir";
 read op;
 
@@ -53,6 +54,8 @@ case "$op" in
 1) linkSSH;;
 2) manualBackup;;
 3) manualToRestore;;
+4) cat acercaDeBBDD.txt;;
+5) cat acercaDeServidorHTTP.txt;;
 0) op=0 ;;
 
 
