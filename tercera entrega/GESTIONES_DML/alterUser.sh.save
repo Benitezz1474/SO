@@ -31,54 +31,45 @@ then
     if [[ $? == 0 ]]
       then
 
-         echo "usuario:$USER:fecha:$(date):accion:se agregaron datos a la tabla usuario" | sudo tee -a "$LOG" > /dev/null;
+         echo "usuario:$USER:fecha:$(date):accion:se agregaron datos de la tabla usuario" | tee -a "$LOG" > /dev/null;
 
           #ahora debo insertar en la tabla de cliente o proveedor dependiendo del rol que haya elegido 
          if [[ "$rol" == "cliente" ]]
          then #inserto al cliente
          sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "INSERT INTO cliente (CiCliente) VALUES ($ci)";
 
-            if [[ $? != 0 ]]
-             then
-                echo "usuario:$USER:fecha:$(date):accion:se intento agregar datos a la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
-             else
-                echo "usuario:$USER:fecha:$(date):accion:se agregaron datos a la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
+             if [[ $? != 0 ]]
+                then
+                    
+                else
              fi
 
          elif [[ "$rol" == "proveedor"  ]]
          then #inserto al proveedor
          sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "INSERT INTO proveedor (CiProveedor) VALUES ($ci)";
 
-
-           if [[ $? != 0 ]]
-              then
-                 echo "usuario:$USER:fecha:$(date):accion:se intento agregar datos a la tabla proveedor" | sudo tee -a "$LOG" > /dev/null;
-              else
-                 echo "usuario:$USER:fecha:$(date):accion:se agregaron datos a la tabla proveedor" | sudo tee -a "$LOG" > /dev/null;
-             fi
-
-
-             else
+         else
            echo "Verifique los datos de entrada"
 
           fi
           echo "" #este echo es para identar el mensaje de respuesta
           echo "usuario insertado correctamente"
+         sudo  echo "usuario:$USER:fecha:$(date):accion:elimina resultados de la tabla contrata" | sudo tee -a "$LOG" > /dev/null;
 
-            else
-              echo "algo salio mal, verifique los datos de entrada (recuerde que los roles deben ser cliente o proveedor en miniscula)";
-           fi
+          else
+
+          echo "algo salio mal, verifique los datos de entrada (recuerde que los roles deben ser cliente o proveedor en miniscula)";
+         fi
        else
          echo "debe compleetar todos los campos"
 
     fi
       echo "usuario agregado";
-
+fi
 
 else
 
   echo "error al realizar la consulta a la BBD, verifique los campos";
-fi
 }
 
 

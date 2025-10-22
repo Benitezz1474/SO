@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LOG_backup=/var/log/conceptualScripts/mariadb_backup.log
+LOG_restore=/var/log/conceptualScripts/mariadb_restore.log
+
 function backup(){
 
 read -p "ingrese el nombre de la BBDD a restaurar: " name_data_base;
@@ -14,16 +17,18 @@ then   #accedo al contenedor mediante el puerto y la ip de la maquina (por defec
      #realizo la copia del fichero.sql
      mysqldump -h "$host" -P "$port" -u root -p "$name_data_base" >"$local_path"/"${name_data_base}_$(date +%d-%m-%Y).sql" > /dev/null;
 
- echo "respaldo realizado con exito ";
+     echo "usuario:$USER:fecha:$(date):accion:se realiza copia de la BBDD ($name_data_base)" | sudo tee -a "$LOG_backup" > /dev/null;
+     echo "respaldo realizado con exito ";
 
        else
         echo "la base de datos no existe";
+        echo "usuario:$USER:fecha:$(date):accion:se intenta realiza copia de la BBDD ($name_data_base)" | sudo tee -a "$LOG_backup" > /dev/null;
+
 
     fi
 
 else
   echo "debes completar todos los campos";
-
 fi
 
 }
@@ -39,7 +44,15 @@ read -p "ingrese el puerto del contenedor (puerto mapeado): " port;
 
  if [[ -n "$path" && -n "$host" && -n "$port" ]]
 then
-   mysql -h "$host" -P "$port" -u root -p "$data_base_name" < "$path";
+   mysql -h "$host" -P "$port" -u root -p "$data_base_name" < "$path" 2> /dev/null;
+
+    if [[ $? != 0 ]]
+     then
+     echo "no se pudo realizar el respaldo, verifique los datos de entrada";
+     echo "usuario:$USER:fecha:$(date):accion:se intento realizar una restauracion de la BBDD ($data_base_name)" | sudo tee -a "$LOG_restore" > /dev/null;
+      else
+       echo "usuario:$USER:fecha:$(date):accion:se intento realizar una restauracion de la BBDD ($data_base_name)" | sudo tee -a "$LOG_restore" > /dev/null;
+    fi
 
   echo "restauracion exitosa"
 
@@ -50,16 +63,6 @@ fi
 }
 
 
-function serverUp(){
-
-
-echo "ok...";
-
-
-}
-
-
-
 op=1;
 while [[ "$op" != 0 ]]
 do
@@ -67,8 +70,6 @@ do
 echo ""
 echo "1) respaldar una BBDD";
 echo "2) restaurar una BBDD";
-echo "3) subir una copia de la BBDD al servidor;"
-echo "4) descargar una copia de la BBDD desde el servidor";
 echo "0) salir";
 read op;
 
