@@ -1,0 +1,163 @@
+#!/bin/bash
+
+LOG=/var/log/conceptualScripts/mariadb.log
+
+#este es el script de gestion de motor de bases de datos (dml)
+
+function userAdd(){ #esta funcion agrega usuarios a la BBDD 
+
+echo "para agregar un usuario a la bbdd debe especificar tipo de usuario y datos de este:";
+read -p "ingrese CI para ese usuario: " ci;
+read -p "ingrese ROL para ese usuario (cliente o proveedor):" rol;
+read -p "ingrese nombre usuario: " name;
+read -p "ingrese apellido usuario: " surname;
+read -p "ingrese email de usuario: " email;
+read -p "ingrese una clave para el usuario: " password;
+
+#validar
+
+if [[ -n "$ci" && -n "$rol" && -n "$name" && -n "surname" && -n "email" && -n "$password" ]]
+then
+
+    if [[ "$rol" == "cliente" || "$rol" == "proveedor" ]] #verifico el rol
+     then
+
+     read -p "ingrese el host (ip del servidor donde se encuentra el servicio de BBDD): " host;
+     read -p "ingrrse el puerto por el cual dese acceder al servicio: " port;
+
+     #meter en la BBDD
+     sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "INSERT INTO usuario (CiUsuario, Rol, Nombre, Apellido, Email, Contraseña) VALUES ('$ci', '$rol','$name','$surname','$email','$password')";
+
+    if [[ $? == 0 ]]
+      then
+
+         echo "usuario:$USER:fecha:$(date):accion:se agregaron datos a la tabla usuario" | sudo tee -a "$LOG" > /dev/null;
+
+          #ahora debo insertar en la tabla de cliente o proveedor dependiendo del rol que haya elegido 
+         if [[ "$rol" == "cliente" ]]
+         then #inserto al cliente
+         sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "INSERT INTO cliente (CiCliente) VALUES ($ci)";
+
+            if [[ $? != 0 ]]
+             then
+                echo "usuario:$USER:fecha:$(date):accion:se intento agregar datos a la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
+             else
+                echo "usuario:$USER:fecha:$(date):accion:se agregaron datos a la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
+             fi
+
+         elif [[ "$rol" == "proveedor"  ]]
+         then #inserto al proveedor
+         sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "INSERT INTO proveedor (CiProveedor) VALUES ($ci)";
+
+
+           if [[ $? != 0 ]]
+              then
+                 echo "usuario:$USER:fecha:$(date):accion:se intento agregar datos a la tabla proveedor" | sudo tee -a "$LOG" > /dev/null;
+              else
+                 echo "usuario:$USER:fecha:$(date):accion:se agregaron datos a la tabla proveedor" | sudo tee -a "$LOG" > /dev/null;
+             fi
+
+
+             else
+           echo "Verifique los datos de entrada"
+
+          fi
+          echo "" #este echo es para identar el mensaje de respuesta
+          echo "usuario insertado correctamente"
+
+            else
+              echo "algo salio mal, verifique los datos de entrada (recuerde que los roles deben ser cliente o proveedor en miniscula)";
+           fi
+       else
+         echo "debe compleetar todos los campos"
+
+    fi
+      echo "usuario agregado";
+
+
+else
+
+  echo "error al realizar la consulta a la BBD, verifique los campos";
+fi
+}
+
+
+#userDel
+function userDel(){ #esta funcion elimina usuarios de la BBDD
+
+#por cuestion de tiempo, la eliminacion es forzosa, si el usuario existe o no ejecuta
+read -p "ingrese CI de usuario a eliminar: " ci;
+read -p "ingrese ROL del usuario (cliente o proveedor): " rol;
+read -p "ingrese host (ip del servidor que tiene el servicio de BBDD): " host;
+read -p "ingrese puerto por el que desea acceder: " port;
+
+if [[ -n "$ci" && -n "$host" && -n "$port" && -n "$rol" ]]
+then
+
+ sudo mysql -h "$host" -P "$port"  -u root -p proyectobd -e "DELETE FROM usuario WHERE CiUsuario=$ci";
+
+  if [[ "$rol" == "cliente" ]]
+  then
+
+   #elimino al cliente
+   sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "DELETE FROM cliente WHERE CiCliente=$ci";
+
+    if [[ $? != 0 ]]
+     then
+          echo "error al insertar datos en la tabla cliente"
+        sudo echo "usuario:$USER:fecha:$(date):accion: se intento eliminar usuarios en la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
+     else
+        sudo  echo "usuario:$USER:fecha:$(date):accion:se eliminaron datos en la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
+     fi
+
+
+  elif [[ "$rol" == "proveedor" ]]
+  then
+
+      #elimino al proveedor
+      sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "DELETE FROM cliente WHERE CiCliente=$ci";
+    fi
+
+echo "" #esto es solo para identar el mensaje que aparece en consola/bash
+echo "usuario eliminado";
+echo "usuario:$USER:fecha:$(date):accion:se eliminaron datos de la tabla usuario" | sudo tee -a "$LOG" > /dev/null
+
+else
+  echo "debe completar todos los campos"
+  echo "usuario:$USER:fecha:$(date):accion:se intentó eliminar datos de la tabla cliente" | sudo tee -a "$LOG" > /dev/null;
+
+
+fi
+}
+
+#la funcion userShow => muestra todos los usuarios de la BBD
+function userShow(){
+
+read -p "ingrese host (ip del servidor que tiene el servicio de BBDD): " host;
+read -p "ingrese el puerto por el que desea acceder: " port;
+
+sudo mysql -h "$host" -P "$port" -u root -p proyectobd -e "SELECT * FROM usuario";
+
+}
+
+op=1;
+while [[ "$op" != 0 ]]
+do
+echo "";
+echo "MENU de consultas DML a la BBDD en tabla usuarios";
+echo "1) agregar usuario";
+echo "2) eliminar usuario";
+echo "3) ver usuarios";
+echo "0) salir";
+read op;
+
+case "$op" in
+
+1) userAdd ;;
+2) userDel;;
+3) userShow;;
+0) op=0;;
+*) echo "Debe ingresar opciones validas";;
+
+esac
+done

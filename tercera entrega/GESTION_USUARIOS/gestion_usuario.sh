@@ -20,17 +20,18 @@ read -p "ingrese un nombre de usuario " name;
     if ! grep -q "^$name:" /etc/passwd; then #si el usuario NO existe, entoces....
 
             read - p "ingrese el tipo de usuario a crear: admin o cliente " typeUser
-              if [[ "$typeUser" != "admin" OR "$typeUser" != "client" ]]; then
+              if [[ "$typeUser" != "admin" || "$typeUser" != "client" ]]; then
                    echo "debes ingresar un tipo de usuario correcto! ";
 
                else
                     sudo touch /etc/skel/welcome.txt
                      if [[ "$typeUser" == "admin" ]]; then
                         echo "bienvenido $name, eres un $typeUser" > etc/skel/welcome.txt;
-                     elif [[ "$typeOf" == "client"]]; then
+                     elif [[ "$typeOf" == "client" ]]; then
                         echo "bienvenido $name, eres un $typeUser" > etc/skel/welcome.txt;
                     sudo useradd $name; #creo el usuario
                     echo "usuario creado correctamente";
+                 fi
                fi
            #debo guardar en los logs la creacion del usuario con fecha y hora
           sudo echo "[$(date)] -> usuario creado: $name" >> "$LOGS";
@@ -156,4 +157,3 @@ case "$op" in
 esac
 
 done
-
